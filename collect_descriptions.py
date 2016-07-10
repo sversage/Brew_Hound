@@ -4,21 +4,26 @@ client = MongoClient()
 database = client['beer_app']
 collection = database['beers']
 
-out_file  = open('Brew_Hound/data/descriptions.txt', "wt")
+def collect_descriptions(file_):
+    out_file  = open(file_, "wt")
 
-description_count = 0
-no_description_count = 0
-total_count = 0
+    description_count = 0
+    no_description_count = 0
+    total_count = 0
 
-for page in collection.find():
-    for beer in page['data']:
-        total_count+=1
-        try:
-            out_file.write(beer['description'])
-            description_count += 1
-        except:
-            no_description_count+=1
+    for page in collection.find({'data.description':{'$exists': 'true'}},{'data.description':True,'_id':False})
+        for beer in page['data']:
+            total_count+=1
+            try:
+                    out_file.write(beer['description'])
+                description_count += 1
+            except:
+                no_description_count+=1
+    out_file.close()
 
-print 'Collected {} descriptions out of {} beers'.format(description_count, total_count)
+    return 'Collected {} descriptions out of {} beers.\
+     {} beers did not have a description'\
+     .format(description_count, total_count, no_description_count)
 
-out_file.close()
+if __name__ == '__main__':
+    print collect_descriptions("data/descriptions.txt")
