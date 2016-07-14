@@ -5,9 +5,15 @@ import numpy as np
 from error import Error
 from flask import Blueprint, request, jsonify
 from auto_completer import MyCompleter
+import location_only
+from cos_sim_mat import recommendBeers
+import read_write_to_sql
+from read_write_to_sql import BrewHoundDatabase
+import unidecode
 
 blueprint = Blueprint(VERSION_STR, __name__)
 auto_comp = MyCompleter()
+beer_me = recommendBeers(BrewHoundDatabase())
 
 @blueprint.route('/autocomplete', methods=['GET'])
 def autocomplete():
@@ -60,47 +66,56 @@ def make_recommendation():
           $ref: '#/definitions/Error'
 
     parameters:
-      - name: positive_items
+      - name: preferred_beers
         in: query
         description: This is a list of items the user likes
         required: true
         type: array
         item:
            type: string
-      - name: negative_items
+      - name: location
         in: query
-        description: This is a list of items the user DOES NOT like
+        description: This is the city or zip code the user would like to search in
         required: true
-        type: array
-        item:
-           type: string
+        type: string
+
 
     consumes:
       - multipart/form-data
       - application/x-www-form-urlencoded
     '''
     d = {'results': [{'brewery': 'Four Peaks', \
-                        'longitude': '97.000', \
-                        'latitude': '-107.9', 'city':\
-                        'Tempe', 'state':'Arizona',\
-                        'zip_code':'85251',\
-                        'beers':[{'beer_name':'Kilt Lifter',\
-                                    'category':'British Origin Ales',\
-                                    'style' :'Scottish-Style Light Ale',\
-                                   'abv':'6',\
-                                   'ibu':'15',}]},
+                    'brew_location_id':'bYu87', \
+                    'longitude': '97.000', \
+                    'latitude': '-107.9', 'city':\
+                    'Tempe', 'state':'Arizona',\
+                    'zip_code':'85251',\
+                    'beers':[{'beer_name':'Kilt Lifter',\
+                                'category':'British Origin Ales',\
+                                'style' :'Scottish-Style Light Ale',\
+                               'abv':'6',\
+                               'ibu':'15',}]},
                     {'brewery': 'Sonoran Brewing Company', \
-                                        'longitude': '98.000', \
-                                        'latitude': '-105.9',
-                                        'city': 'Tempe',
-                                        'state':'Arizona',\
-                                        'zip_code':'85251',\
-                                        'beers':[{'beer_name':'Kilt Lifter',\
-                                                    'category':'British Origin Ales',\
-                                                    'style' :'Scottish-Style Light Ale',\
-                                                   'abv':'6',\
-                                                   'ibu':'15',}]}]}
-    return jsonify(d)
+                    'brew_location_id':'cdFR45',
+                    'longitude': '98.000', \
+                    'latitude': '-105.9',
+                    'city': 'Tempe',
+                    'state':'Arizona',\
+                    'zip_code':'85251',\
+                    'beers':[{'beer_name':'Kilt Lifter',\
+                                'category':'British Origin Ales',\
+                                'style' :'Scottish-Style Light Ale',\
+                               'abv':'6',\
+                               'ibu':'15',}]}]}
+
+    beer_preferences = eval(request.args['preferred_beers'])
+    loc = request.args['location']
+
+    try:
+        loc = int(loc)
+        return jsonify(beer_me.recommend_controller(beer_preferences, zip_code = loc))
+    except:
+        return jsonify(beer_me.recommend_controller(beer_preferences, city = loc))
 
 @blueprint.route('/location_only_recommendation', methods=['GET'])
 def location_only_recommendation():
@@ -120,9 +135,9 @@ def location_only_recommendation():
           $ref: '#/definitions/Error'
 
     parameters:
-      - name: city
+      - name: city,state
         in: query
-        description: This is the city the user wishes to get a list of breweries for
+        description: This is the city,state the user wishes to get a list of breweries for
         required: true
         type: array
         item:
@@ -132,15 +147,11 @@ def location_only_recommendation():
       - multipart/form-data
       - application/x-www-form-urlencoded
     '''
-    location_only_results = {'results': [{'name': 'Four Peaks',
-                        'longitude': '97.000',
-                        'latitude': '-107.9',
-                        'overall_rating': '97.5'},
-                        {'name': 'Sonoran Brewing Company',
-                        'longitude': '95.000',
-                        'latitude': '-109.9',
-                        'overall_rating': '94.5'}]}
-    return jsonify(location_only_results)
+
+    location = request.args['city,state']
+    location_only.city_brew_query(location)
+    return jsonify(location_only.brewery_ratings)
+
 
 from app import app
 app.register_blueprint(blueprint, url_prefix='/'+VERSION_STR)

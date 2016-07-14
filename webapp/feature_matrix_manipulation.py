@@ -1,4 +1,3 @@
-from pymongo import MongoClient
 from collections import defaultdict
 import pandas as pd
 from read_write_to_sql import BrewHoundDatabase
@@ -54,13 +53,14 @@ def feature_maxtrix_to_numeric_dummy_categorial():
     SELECT *,
     CASE WHEN ibu IS NULL THEN IBU_AVG
          ELSE ibu
-         END as ibu2
+         END as ibus
     FROM temp_feats;
 
     ALTER TABLE feature_matrix_2 DROP COLUMN ibu;
     ALTER TABLE feature_matrix_2 DROP COLUMN ibu_avg;
     ALTER TABLE feature_matrix_2 DROP COLUMN "ibuMax";
     ALTER TABLE feature_matrix_2 DROP COLUMN "ibuMin";
+    ALTER TABLE feature_matrix_2 DROP COLUMN "level_0";
     DROP TABLE temp_feats;"""
 
     try:
