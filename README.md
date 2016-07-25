@@ -32,3 +32,7 @@ I intend on creating functionality to allow users to rate the recommended beers 
 Within the Repo there are scripts to facilitate collection of the data via API into a MongoDB, parsing the relevant information from Mongo into Postgres, feature engineering, and building a content filtering recommendation engine based upon a users tastes and location. 
 
 Moreover, there are scripts within the repo to run a REST API. 
+
+#APIs Leverage
+
+I would like to say thank you to BreweryDB and BreweryMapping for allowing me to use their API in making this app possible. 
