@@ -11,11 +11,17 @@ Once the data was scraped from the internet and parsed from MongoDB into PSQL, I
 
 Heat Map by state:
 
+![ScreenShot](https://github.com/sversage/Brew_Hound/blob/master/webapp/screen_prints/Screen%20Shot%202016-07-25%20at%204.21.50%20PM.png)
+
 Relative City Count: 
+
+![ScreenShot](https://github.com/sversage/Brew_Hound/blob/master/webapp/screen_prints/Screen%20Shot%202016-07-25%20at%204.22.02%20PM.png)
 
 # Recommendation system
 
 The recommender system is a content based filtering engine, similar to the model Pandora uses for their song selection. The user inputs their favorites beers and desired location, at which point the app will calculate cosine similarity and return the most similar beers as recommendations. Some of the features used in the similarity calculation include ABB, SRM, IBU, category and style. 
+
+Webapp URL: https://brew-hound-app.herokuapp.com/
 
 # Next steps
 
